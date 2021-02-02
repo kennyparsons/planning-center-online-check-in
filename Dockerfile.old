@@ -1,0 +1,60 @@
+FROM debian:stable-slim
+
+#Environment
+ENV SCREEN_WIDTH 1920
+ENV SCREEN_HEIGHT 1080
+ENV SCREEN_DEPTH 24
+ENV DISPLAY :0
+ENV LANGUAGE en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV VNCPASSWORD secret
+
+#Run
+RUN apt update \
+  && mkdir -p /usr/share/man/man1 \
+  && apt install -y \
+    sudo \
+    software-properties-common \
+    gnupg \
+    ca-certificates \
+    unzip \
+    wget \
+    tzdata \
+    locales \
+    maven \
+    fonts-ipafont-gothic \
+    xfonts-100dpi \
+    xfonts-75dpi \
+    xfonts-cyrillic \
+    xfonts-scalable \
+    fluxbox \
+    locales \
+    locales-all \
+    openjdk-11-jdk \
+    xvfb \
+    x11vnc \
+  && mkdir -p ~/.vnc \
+  && locale-gen en_US.UTF-8 \
+  && dpkg-reconfigure --frontend noninteractive locales \
+  && x11vnc -storepasswd $VNCPASSWORD ~/.vnc/passwd
+
+
+#========================================
+# Add normal user with passwordless sudo
+#========================================
+RUN sudo useradd seluser --shell /bin/bash --create-home \
+  && sudo usermod -a -G sudo seluser \
+  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
+  && echo 'seluser:secret' | chpasswd
+
+#==============================
+# Scripts to run 
+#==============================
+COPY entry_point.sh /opt/bin/entry_point.sh
+RUN chmod +x /opt/bin/entry_point.sh
+
+EXPOSE 5900
+
+# USER seluser
+
+ENTRYPOINT ["/opt/bin/entry_point.sh"]

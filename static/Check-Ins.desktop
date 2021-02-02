@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Check-Ins
+Comment=PCO Check-ins for RC
+Exec=/home/ubuntu/pco-ci/planning-center-check-ins
+Icon=/home/ubuntu/pco-ci/checkinsicon.png
+Terminal=false
+Type=Application
+StartupNotify=true
